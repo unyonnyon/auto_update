@@ -1,32 +1,54 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
-  </div>
+    <v-app>
+        <v-content app>
+            <v-container fluid>
+                <v-row justify="center" class="mb-4">
+                    <v-timeline>
+                        <v-timeline-item>innerWidth: {{width}}</v-timeline-item>
+                        <v-timeline-item class="text-right">timeline item</v-timeline-item>
+                        <v-timeline-item>innerHeight: {{height}}</v-timeline-item>
+                    </v-timeline>
+                </v-row>
+                <v-row justify="center">
+                    <v-btn rounded dark @click="openDialog">
+                        <v-icon>cached</v-icon>
+                    </v-btn>
+                </v-row>
+            </v-container>
+        </v-content>
+    </v-app>
 </template>
 
-<style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script>
 
-#nav {
-  padding: 30px;
-}
+const { dialog } = require('electron').remote
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
+export default {
 
-#nav a.router-link-exact-active {
-  color: #42b983;
-}
-</style>
+    name: "App",
+    data: () => ({
+        width: window.innerWidth,
+        height: window.innerHeight,
+        getPaths: []
+    }),
+    methods: {
+        handleResize() {
+            this.width = window.innerWidth;
+            this.height = window.innerHeight;
+        },
+        openDialog(){
+            dialog.showOpenDialog({ properties: ['openFile', 'multiSelections'] })
+            .then(result => {
+                console.log(result);
+                this.getPaths = result.filePaths;
+            })
+        }
+    },
+    mounted() {
+        window.addEventListener("resize", this.handleResize);
+    },
+    beforeDestroy: function() {
+        window.removeEventListener("resize", this.handleResize);
+    }
+};
+</script>
